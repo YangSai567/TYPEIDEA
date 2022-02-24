@@ -35,6 +35,20 @@ class TagAdmin(admin.ModelAdmin):
         return super(TagAdmin, self).save_model(request, obj, form, change)
 
 
+class CategoryOwnerFilter(admin.SimpleListFilter):
+    title = '分类过滤器'
+    parameter_name = 'owner_category'
+
+    def lookups(self, request, model_admin):
+        return Category.objects.filter(owner=request.user).values_list('id', 'name')
+
+    def queryset(self, request, queryset):
+        category_id = self.value()
+        if category_id:
+            return queryset.filter(category_id=self.value())
+        return queryset
+
+
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = [
@@ -43,7 +57,7 @@ class PostAdmin(admin.ModelAdmin):
     ]  # 列表页面展示哪些字段
     list_display_links = []  # 用来展示哪些字段可以作为链接
 
-    list_filter = ['category']  # 需要通过哪些字段来过滤列表页
+    list_filter = [CategoryOwnerFilter]  # 需要通过哪些字段来过滤列表页,这里使用了上面自定义的分类过滤器
     search_fields = ['title', 'category__name']  # 配置搜索字段
 
     actions_on_top = True  # 动作相关的配置,是否展示在顶部
