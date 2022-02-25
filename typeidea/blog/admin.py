@@ -64,14 +64,39 @@ class PostAdmin(admin.ModelAdmin):
     actions_on_bottom = True
 
     save_on_top = True  # 保存,编辑,编辑并新建按钮是否在顶部显示
+    exclude = ('owner',)  # 不需要展示的字段
 
-    fields = (
-        ('category', 'title'),
-        'desc',
-        'status',
-        'content',
-        'tag',
+    # fields = (  # 限定要展示的字段并且可以配置展示字段的顺序
+    #     ('category', 'title'),
+    #     'desc',
+    #     'status',
+    #     'content',
+    #     'tag',
+    # )
+
+    fieldsets = (
+        ('基础配置', {
+            'description': '基础配置描述',
+            'fields': (
+                ('title', 'category'),
+                'status',
+            ),
+        }),
+        ('内容', {
+            'fields': (
+                'desc',
+                'content',
+            ),
+        }),
+        (
+            '额外信息', {
+                'classes': ('collapse',),
+                'fields': ('tag',),
+            })
     )
+    filter_horizontal = ('tag',)  # 设置横向展示的字段
+
+    # filter_vertical = ('tag',) # 设置纵向展示的字段
 
     def operator(self, obj):
         return format_html(
@@ -84,3 +109,8 @@ class PostAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         obj.owner = request.user
         return super(PostAdmin, self).save_model(request, obj, form, change)
+
+    # 使用户只能看到自己创建的文章
+    def get_queryset(self, request):
+        qs = super(PostAdmin, self).get_queryset(request)
+        return qs.filter(owner=request.user)
