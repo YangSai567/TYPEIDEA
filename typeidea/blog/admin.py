@@ -1,9 +1,11 @@
+from django.contrib.admin.models import LogEntry
 from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse
 
 from .models import Post, Category, Tag
 from .adminforms import PostAdminForm
+from typeidea.custom_site import custom_site
 
 
 # Register your models here.
@@ -15,18 +17,11 @@ class PostInline(admin.TabularInline):
     model = Post
 
 
-@admin.register(Category)
+@admin.register(Category, site=custom_site)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'is_nav', 'created_time', 'post_count')
     fields = ('name', 'status', 'is_nav')
     inlines = [PostInline, ]
-
-    def save_model(self, request, obj, form, change):
-        obj.owner = request.user
-        return super(CategoryAdmin, self).save_model(request, obj, form, change)
-        # 首先找到CategoryAdmin的父类,也就是ModelAdmin
-        # 然后把CategoryAdmin的对象转换为ModelAdmin的对象
-        # 然后执行ModelAdmin的savemodel方法
 
     def post_count(self, obj):
         return obj.post_set.count()
@@ -34,14 +29,10 @@ class CategoryAdmin(admin.ModelAdmin):
     post_count.short_description = '文章数量'
 
 
-@admin.register(Tag)
+@admin.register(Tag, site=custom_site)
 class TagAdmin(admin.ModelAdmin):
     list_display = ('name', 'status', 'created_time')
     fields = ('name', 'status')
-
-    def save_model(self, request, obj, form, change):
-        obj.owner = request.user
-        return super(TagAdmin, self).save_model(request, obj, form, change)
 
 
 class CategoryOwnerFilter(admin.SimpleListFilter):
@@ -58,7 +49,7 @@ class CategoryOwnerFilter(admin.SimpleListFilter):
         return queryset
 
 
-@admin.register(Post)
+@admin.register(Post, site=custom_site)
 class PostAdmin(admin.ModelAdmin):
     form = PostAdminForm
     list_display = [
@@ -111,19 +102,10 @@ class PostAdmin(admin.ModelAdmin):
     def operator(self, obj):
         return format_html(
             '<a href="{}">编辑</a>',
-            reverse('admin:blog_post_change', args=(obj.id,))
+            reverse('cus_admin:blog_post_change', args=(obj.id,))
         )
 
     operator.short_description = '操作'
-
-    def save_model(self, request, obj, form, change):
-        obj.owner = request.user
-        return super(PostAdmin, self).save_model(request, obj, form, change)
-
-    # 使用户只能看到自己创建的文章
-    def get_queryset(self, request):
-        qs = super(PostAdmin, self).get_queryset(request)
-        return qs.filter(owner=request.user)
 
     class Media:
         css = {
@@ -132,4 +114,7 @@ class PostAdmin(admin.ModelAdmin):
         js = ("https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/js/bootstrap.bundle.js")
 
 
-
+@admin.register(LogEntry, site=custom_site)
+class LogEntryAdmin(admin.ModelAdmin):
+    list_display = ['object_repr', 'object_id', 'action_flag', 'user',
+                    'change_message']
