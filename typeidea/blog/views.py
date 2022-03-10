@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import render
 
+from config.models import SideBar
+
 from .models import Post, Tag, Category
 
 
@@ -21,9 +23,9 @@ def post_list(request, category_id=None, tag_id=None):  # 这里传进来的参�
         'category': category,
         'tag': tag,
         'post_list': post_list,
+        'sidebars': SideBar.get_all()
     }
     context.update(Category.get_navs())
-
     # content = 'post_list category_id={category_id},tag_id={tag_id}'.format(category_id=category_id,
     #                                                                        tag_id=tag_id)  # 这里一定要给出值传参,
     return render(request, 'blog/list.html', context=context)  # 这里的request封装了HTTP的请求
@@ -37,6 +39,7 @@ def post_detail(request, post_id=None):
 
     context = {
         'post': post,
+        'sidebars':SideBar.get_all()
     }
     context.update(Category.get_navs())
     return render(request, 'blog/detail.html', context={'post': post})

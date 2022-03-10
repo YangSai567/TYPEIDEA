@@ -26,8 +26,13 @@ class Category(models.Model):
     @classmethod
     def get_navs(cls):
         categories = cls.objects.filter(status=cls.STATUS_NORM)
-        nav_categories = categories.filter(is_nav=True)  # 导航分类
-        normal_categories = categories.filter(is_nav=False)  # 正常分类(非导航分类)
+        nav_categories = [] # 导航分类
+        normal_categories = []# 正常分类(非导航分类)
+        for cate in categories:
+            if cate.is_nav:
+                nav_categories.append(cate)
+            else:
+                normal_categories.append(cate)
         return {
             'navs': nav_categories,
             'categories': normal_categories,
@@ -65,6 +70,9 @@ class Post(models.Model):
         (STATUS_DRAFT, '草稿')
     )
 
+    pv = models.PositiveIntegerField(default=1)
+    uv = models.PositiveIntegerField(default=1)
+
     title = models.CharField(max_length=255, verbose_name='标题')
     desc = models.CharField(max_length=1024, blank=True, verbose_name='摘要')
     content = models.TextField(verbose_name='正文', help_text='正文必须为MarkDown格式')
@@ -78,6 +86,9 @@ class Post(models.Model):
     class Meta:
         verbose_name = verbose_name_plural = '文章'
         ordering = ['-id']
+
+    def __str__(self):
+        return self.title
 
     @staticmethod  # 不用实例化此类,可以直接调用get_by_tag
     def get_by_tag(tag_id):
@@ -103,6 +114,12 @@ class Post(models.Model):
                 .select_related('owner', 'category')
         return post_list, category
 
+    # 获取最新文章,在首页会显示
     @classmethod
     def latest_posts(cls):
         queryset = cls.objects.filter(status=cls.STATUS_NORMAL)
+        return queryset
+
+    @classmethod
+    def hot_posts(cls):
+        return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv')

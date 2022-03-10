@@ -110,16 +110,14 @@ class PostAdmin(BaseOwnerAdmin):
 
     # class Media:
     #     css = {
-    #         'all': ("https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css",),
-    #     }
-    #     js = 'https://cdn.bootcss.com/bootstrap/4.0.0-beta.2/js/bootstrap.bundle.js'
-    class Media:
-        css = {
-            'all': ("https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css",), }
-        js = ("https://cdn.bootcss.com/twitter-bootstrap/4.4.0/js/bootstrap.bundle.js",)
+    #         'all': ("https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css",), }
+    #     js = ("https://cdn.bootcss.com/twitter-bootstrap/4.4.0/js/bootstrap.bundle.js",)
 
 
 @admin.register(LogEntry, site=custom_site)
 class LogEntryAdmin(admin.ModelAdmin):
+    # list_display = ['object_repr', 'object_id', 'action_flag', 'user',
+    #                 'change_message']
     list_display = ['object_repr', 'object_id', 'action_flag', 'user',
                     'change_message']
+

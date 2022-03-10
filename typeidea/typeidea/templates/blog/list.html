@@ -33,8 +33,16 @@
 </u1>
 <hr/>
 <div>底部分类:
+<!--    类category下 get_navs,返回 'categories':normal_categories,非导航目录-->
     {% for cate in categories %}
     <a href="/category/{{ cate.id }}/">{{ cate.name }}</a>
+    {% endfor %}
+</div>
+
+<div>
+    {% for sidebar in sidebars %}
+    <h4>{{ sidebar.title }}</h4>
+        {{ sidebar.content }}
     {% endfor %}
 </div>
 </body>
