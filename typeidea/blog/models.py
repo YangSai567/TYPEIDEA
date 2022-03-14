@@ -70,6 +70,7 @@ class Post(models.Model):
         (STATUS_DRAFT, '草稿')
     )
 
+    # 文章的访问量
     pv = models.PositiveIntegerField(default=1)
     uv = models.PositiveIntegerField(default=1)
 
@@ -120,6 +121,7 @@ class Post(models.Model):
         queryset = cls.objects.filter(status=cls.STATUS_NORMAL)
         return queryset
 
+    # 热门文章
     @classmethod
     def hot_posts(cls):
         return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv')
