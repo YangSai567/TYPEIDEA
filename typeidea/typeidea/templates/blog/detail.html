@@ -5,11 +5,7 @@
     <title>typeidea 博客详情</title>
 </head>
 <body>
-{% extends "./base.html" %}
 
-{% block titile %} {{ post.title }} {% endblock %}
-
-{% block main %}
     {% if post %}
     <h1>{{ post.title }}</h1>
     <div>
@@ -21,8 +17,6 @@
         {{ post.content }}
     </p>
     {% endif %}
-{% endblock %}
 
-</div>
 </body>
 </html>
